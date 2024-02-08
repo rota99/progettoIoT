@@ -1,0 +1,113 @@
+<!doctype html>
+    <head>
+
+        <title>Arduino</title>
+
+        <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    </head>
+    <body>
+
+        <h1>Progetto</h1>
+
+        <div id="dataDisplay">
+            <!--<p><strong>Status:</strong><span id="status"></span></p>-->
+            <p><strong>Time:</strong><span id="time"></span></p>
+            <p><strong>Speed:</strong><span id="speed"></span></p>
+
+            <div id="chart_div"></div>
+        </div>
+
+        <p id="start-btn">Start</p>
+        <p id="stop-btn">Stop</p>
+
+        <script>
+            google.charts.load('current', {'packages':['corechart']});
+
+            let i = 0;
+
+            document.getElementById("stop-btn").onclick = function() {
+                console.log("stop");
+                socket.emit('acceleration', {status:"0"});
+                document.getElementById("time").innerHTML = i/5;
+                document.getElementById("speed").innerHTML = calcVelocita(avgAcceleration(), i/5);
+                i = 0;
+                google.charts.setOnLoadCallback(drawChart);
+            }
+
+            document.getElementById("start-btn").onclick = function() {
+                console.log("start");
+                socket.emit('acceleration', {status:"1"});
+            }
+
+            var socket = io();
+            var xPrevVal; 
+            var yPrevVal;
+            var hbr = [];
+            var xAcceleration = [];
+            var yAcceleration = [];
+
+            socket.on('data', function(data){
+                const vals = data.split(",");
+
+                console.log(vals[0]);
+
+                if(parseInt(vals[0]) > 100) {
+                    socket.emit('acceleration', {status:"2"});
+                }
+
+                hbr.push([i/5, parseInt(vals[0])]);
+                xAcceleration.push(vals[1]);
+                yAcceleration.push(vals[2]);
+
+                xAccelerationL = xAcceleration.length;
+                yAccelerationL = yAcceleration.length;
+
+                i++;
+
+                //console.log(vals);
+            });
+
+            function calcVelocita(a, t) {
+                return a*t;
+            }
+
+            function avgAcceleration() {
+                let sum = 0;
+
+                for(var i = 0; i < xAcceleration.length; i++) {
+                    var n = parseFloat(xAcceleration[i])
+                    sum += n;
+                }
+
+                return sum/xAcceleration.length;
+            }
+
+            function drawChart() {
+                // Create the data table.
+                var header = ["Tempo", "BPM"];
+                var data = [];
+
+                data.push(header);
+
+                for(var j = 0; j < hbr.length; j++) {
+                    data.push(hbr[j]);
+                }
+
+                var dataTable = google.visualization.arrayToDataTable(data);
+
+                
+                var options = {
+                    title: 'BPM durante la corsa',
+                    hAxis: {title: 'Tempo',  titleTextStyle: {color: '#333'}},
+                    vAxis: {title: 'BPM', minValue: 0}
+                };
+
+                var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+                chart.draw(dataTable, options);
+            }
+        </script>
+
+    </body>
+</html>
