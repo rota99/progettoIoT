@@ -6,9 +6,11 @@ var index = fs.readFileSync('index.html');
 const { SerialPort } = require('serialport')
 const { ReadlineParser } = require('@serialport/parser-readline')
 
+var usbpath = '/dev/cu.usbmodem14101';
+
 
 var port = new SerialPort({
-    path: 'COM3',
+    path: usbpath,
     baudRate: 9600,
     dataBits: 8,
     parity: 'none',

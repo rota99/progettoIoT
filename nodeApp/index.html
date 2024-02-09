@@ -1,43 +1,86 @@
 <!doctype html>
     <head>
 
-        <title>Arduino</title>
+        <title>rogetto Smart IoT Devices - Rita Gambardella</title>
 
         <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
 
     </head>
     <body>
+        <div class="container">
+            <div class="row mt-5 p-3 rounded-lg bg-light">
+                <div class="col-12">
+                    <h1>Progetto Smart IoT Devices</h1>
+                </div>
 
-        <h1>Progetto</h1>
+                <div class="col-12">
+                    <p id="start-btn" class="btn btn-primary d-inline-block">Start</p>
+                    <p id="stop-btn" class="btn btn-primary d-inline-block">Stop</p>
+                </div>
 
-        <div id="dataDisplay">
-            <!--<p><strong>Status:</strong><span id="status"></span></p>-->
-            <p><strong>Time:</strong><span id="time"></span></p>
-            <p><strong>Speed:</strong><span id="speed"></span></p>
-
-            <div id="chart_div"></div>
+                <div class="col-12">
+                    <table id="results-table" class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Tempo <span class="text-secondary">s</span></th>
+                            <th scope="col">Velocit&agrave <span class="text-secondary">m/s</span></th>
+                            <th scope="col">Max BPM</th>
+                            <th scope="col"> </th>
+                          </tr>
+                        </thead>
+                        <tbody id="results-table-tbody">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="charts" class="col-12"></div>
+            </div>
         </div>
 
-        <p id="start-btn">Start</p>
-        <p id="stop-btn">Stop</p>
-
         <script>
-            google.charts.load('current', {'packages':['corechart']});
-
             let i = 0;
+            let tableRow = 1;
+            let chartN = 1;
 
             document.getElementById("stop-btn").onclick = function() {
-                console.log("stop");
+                //console.log("stop");
                 socket.emit('acceleration', {status:"0"});
-                document.getElementById("time").innerHTML = i/5;
-                document.getElementById("speed").innerHTML = calcVelocita(avgAcceleration(), i/5);
+
+                var tr = document.createElement("tr");
+                var th = document.createElement("th");
+                var tdTime = document.createElement("td");
+                var tdSpeed = document.createElement("td");
+                var tdBPMMax = document.createElement("td");
+                var tdLink = document.createElement("td");
+                var link = document.createElement("a");
+
+                th.innerHTML = tableRow;
+                tdTime.innerHTML = i/5;
+                tdSpeed.innerHTML = Math.round(calcVelocita(avgAcceleration(), i/5) * 100) / 100;
+                tdBPMMax.innerHTML = findMaxBPM();
+                link.classList.add("btn", "btn-link");
+                link.innerHTML = "Grafico BPM";
+                link.setAttribute('onclick','showChart(this.id);');
+                link.setAttribute("id", chartN.toString());
+                tdLink.appendChild(link);
+
+                tr.appendChild(th);
+                tr.appendChild(tdTime);
+                tr.appendChild(tdSpeed);
+                tr.appendChild(tdBPMMax);
+                tr.appendChild(tdLink);
+
+                document.getElementById("results-table-tbody").appendChild(tr);
                 i = 0;
-                google.charts.setOnLoadCallback(drawChart);
+                tableRow++;
+                drawChart();
             }
 
             document.getElementById("start-btn").onclick = function() {
-                console.log("start");
+                //console.log("start");
                 socket.emit('acceleration', {status:"1"});
             }
 
@@ -51,9 +94,9 @@
             socket.on('data', function(data){
                 const vals = data.split(",");
 
-                console.log(vals[0]);
+                //console.log(vals[0]);
 
-                if(parseInt(vals[0]) > 100) {
+                if(parseInt(vals[0]) > 200) {
                     socket.emit('acceleration', {status:"2"});
                 }
 
@@ -84,28 +127,77 @@
                 return sum/xAcceleration.length;
             }
 
-            function drawChart() {
-                // Create the data table.
-                var header = ["Tempo", "BPM"];
-                var data = [];
-
-                data.push(header);
+            function findMaxBPM() {
+                let BPMarray = [];
 
                 for(var j = 0; j < hbr.length; j++) {
-                    data.push(hbr[j]);
+                    BPMarray[j] = hbr[j][1];
                 }
 
-                var dataTable = google.visualization.arrayToDataTable(data);
+                return Math.max(...BPMarray);
+            }
 
+            function drawChart() {
+                var canvas = document.createElement("canvas");
+                canvas.setAttribute('id', 'chart-'+chartN.toString());
+                canvas.setAttribute('class', 'chart');
+                canvas.classList.add("d-none");
+                document.getElementById('charts').appendChild(canvas);
+
+                const ctx = canvas;
+
+                let labels = [];
+                let data = [];
                 
-                var options = {
-                    title: 'BPM durante la corsa',
-                    hAxis: {title: 'Tempo',  titleTextStyle: {color: '#333'}},
-                    vAxis: {title: 'BPM', minValue: 0}
-                };
+                for(var j = 0; j < hbr.length; j++) {
+                    labels.push(hbr[j][0]);
+                    data.push(hbr[j][1]);
+                }
 
-                var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
-                chart.draw(dataTable, options);
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'BPM',
+                            data: data,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: false
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'BPM durante corsa #'+chartN
+                            },
+                            legend: {
+                                display: false
+                            }
+                        }
+
+                    }
+                });
+                chartN++;
+            }
+
+            function showChart(id) {
+                var children = document.getElementById("charts").children;
+                var children_filtered = []
+
+                //console.log(children);
+
+                for(var j = 0; j < children.length; j++) {
+                    //console.log(children[j].classList.length);
+                    if(children[j].classList.length < 2)
+                        children[j].classList.add('d-none');
+                }
+                
+                document.getElementById('chart-'+id).classList.remove("d-none");
             }
         </script>
 
