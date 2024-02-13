@@ -184,83 +184,13 @@ void loop()
         } else {
           //rischio per l'atleta
           ongoing = 0;
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, HIGH );
-          delay(100);
-          digitalWrite( BLE_LED_PIN, LOW );
-          delay(100);
-          
+
+          for(int i = 0; i < 100; i++) {
+            digitalWrite( BLE_LED_PIN, HIGH );
+            delay(100);
+            digitalWrite( BLE_LED_PIN, LOW );
+            delay(100);
+          }
         }
       }    
     }

@@ -11,25 +11,25 @@
     </head>
     <body>
         <div class="container">
-            <div class="row mt-5 p-3 rounded-lg bg-light">
-                <div class="col-12">
+            <div class="row mt-5 mb-5 p-3 rounded-lg bg-light">
+                <div class="col-12 mb-3">
                     <h1>Progetto Smart IoT Devices</h1>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12 mb-3">
                     <p id="start-btn" class="btn btn-primary d-inline-block">Start</p>
-                    <p id="stop-btn" class="btn btn-primary d-inline-block">Stop</p>
+                    <p id="stop-btn" class="btn btn-primary d-inline-block disabled">Stop</p>
                 </div>
 
                 <div class="col-12">
                     <table id="results-table" class="table">
                         <thead>
                           <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Tempo <span class="text-secondary">s</span></th>
-                            <th scope="col">Velocit&agrave <span class="text-secondary">m/s</span></th>
-                            <th scope="col">Max BPM</th>
-                            <th scope="col"> </th>
+                            <th>#</th>
+                            <th>Tempo <span class="text-secondary">s</span></th>
+                            <th>Velocit&agrave <span class="text-secondary">m/s</span></th>
+                            <th>Max BPM</th>
+                            <th> </th>
                           </tr>
                         </thead>
                         <tbody id="results-table-tbody">
@@ -77,11 +77,21 @@
                 i = 0;
                 tableRow++;
                 drawChart();
+
+                document.getElementById("stop-btn").classList.add("disabled");
+
+                if(document.getElementById("start-btn").classList.contains("disabled"))
+                    document.getElementById("start-btn").classList.remove("disabled");
             }
 
             document.getElementById("start-btn").onclick = function() {
                 //console.log("start");
                 socket.emit('acceleration', {status:"1"});
+
+                document.getElementById("start-btn").classList.add("disabled");
+
+                if(document.getElementById("stop-btn").classList.contains("disabled"))
+                    document.getElementById("stop-btn").classList.remove("disabled");
             }
 
             var socket = io();
@@ -94,9 +104,9 @@
             socket.on('data', function(data){
                 const vals = data.split(",");
 
-                //console.log(vals[0]);
+                console.log(vals[0]);
 
-                if(parseInt(vals[0]) > 200) {
+                if(parseInt(vals[0]) > 70) {
                     socket.emit('acceleration', {status:"2"});
                 }
 
